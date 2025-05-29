@@ -1,11 +1,18 @@
-import requests
+import pytest
+from app import app
 
-def test_get():
-    resposta = requests.get("http://127.0.0.1:5000/api")
+@pytest.fixture
+def client():
+    with app.test_client() as client:
+        yield client
+
+def test_get(client):
+    resposta = client.get('/api')
     assert resposta.status_code == 200
+    assert resposta.json == {"mensagem": "GET funcionando"}
 
-def test_post():
+def test_post(client):
     dados = {"nome": "João"}
-    resposta = requests.post("http://127.0.0.1:5000/api", json=dados)
+    resposta = client.post('/api', json=dados)
     assert resposta.status_code == 200
-    assert resposta.json()["dados"]["nome"] == "João"
+    assert resposta.json["dados"]["nome"] == "João"
